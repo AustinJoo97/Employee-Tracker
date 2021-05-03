@@ -1,0 +1,23 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "Command-line application allowing users to manage teams including, managers and employees, that are saved in a sql database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AustinJoo97/Employee-Tracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AustinJoo97/Employee-Tracker/issues"
+  },
+  "dependencies": {
+    "inquirer": "^8.0.0",
+    "mysql": "^2.16.0"
+  },
+  "homepage": "https://github.com/AustinJoo97/Employee-Tracker#readme"
+}
