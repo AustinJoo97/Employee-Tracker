@@ -1,7 +1,8 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const {password} = require('./password.js')
+const {password} = require('./password.js');
+const { connect } = require('http2');
 const allOptions = ['View all employees', 'View all employees by department', 'View all employees by manager', 'Add employee', 'Remove employee', 'Update employee role', 'Update employee manager', 'View all roles', 'Add role', 'Remove role', 'View all departments', 'Add department', 'Remove department', 'Exit'];
 
 const connection = mysql.createConnection({
@@ -100,6 +101,31 @@ function viewAllEmployees(){
     // Which department would you like to see employees for?
         // List
 function viewAllEmployeesByDepartment(){
+    // Get list of all departments and have user select from list which department they want to see all employees
+    let allDepartmentNames = [];
+    connection.query('select * from departments', (err, res) => {
+        if(err){
+            throw new Error(err);
+        }
+        res.forEach((department) => {
+            allDepartmentNames.push(department.name);
+        });
+        inquirer.prompt({
+            name: 'selectedDepartment',
+            type: 'list',
+            message: 'From what department would you like to view the employees of?',
+            options: allDepartmentNames
+        })
+        .then((response) => {
+            // Connection query to select all employees where employees.roleID > roles.departmentID > res.id = department.id
+
+            // if(err){
+                // throw new Error(err)
+            // } 
+            // console.table(res);
+            // init();
+        })
+    })
 
 };
 
