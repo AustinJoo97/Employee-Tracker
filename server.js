@@ -87,7 +87,7 @@ function init(){
 
 // View all employees
 function viewAllEmployees(){
-    connection.query('select * from employees', (err, res) => {
+    connection.query('select * from employees;', (err, res) => {
         if(err){
             throw new Error(err)
         }
@@ -103,7 +103,7 @@ function viewAllEmployees(){
 function viewAllEmployeesByDepartment(){
     // Get list of all departments and have user select from list which department they want to see all employees
     let allDepartmentNames = [];
-    connection.query('select * from departments', (err, res) => {
+    connection.query('select * from departments;', (err, res) => {
         if(err){
             throw new Error(err);
         }
@@ -184,7 +184,7 @@ function updateEmployeeManager(){
 
 // View all roles
 function viewAllRoles(){
-    connection.query('select * from roles', (err, res) => {
+    connection.query('select * from roles;', (err, res) => {
         if(err){
             throw new Error(err);
         }
@@ -211,7 +211,7 @@ function removeRole(){
 
 // View all departments
 function viewAllDepartments(){
-    connection.query('select * from departments', (err, res) => {
+    connection.query('select * from departments;', (err, res) => {
         if(err){
             throw new Error(err)
         }
@@ -222,7 +222,23 @@ function viewAllDepartments(){
 
 // Add department
     // What is the new department's name?
-function addDepartment(){};
+function addDepartment(){
+    inquirer.prompt({
+        name: 'addDepartment',
+        type: 'input',
+        message: 'What department are you adding?'
+    })
+    .then((response) => {
+        response.addDepartment = response.addDepartment.charAt(0).toUpperCase() + response.addDepartment.slice(1);
+        connection.query('insert into departments set ?', {name: response.addDepartment}, (err, res) => {
+            if(err){
+                throw new Error(err)
+            }
+            console.log(`${response.addDepartment} successfully added to departments!`)
+            init();
+        })
+    })
+};
 
 // Remove department
     // What is the department's name?
