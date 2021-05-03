@@ -117,7 +117,7 @@ function viewAllEmployeesByManager(){
         // List
 function addEmployee(){
     // Get list of all managers in the DB, push them to an array with their names displayed, use this array in inquirer below
-    
+
     // inquirer.prompt({
     //     name: 'firstName',
     //     type: 'input',
@@ -185,7 +185,13 @@ function removeRole(){
 
 // View all departments
 function viewAllDepartments(){
-
+    connection.query('select * from departments', (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        console.table(res);
+        init();
+    })
 };
 
 // Add department
