@@ -98,14 +98,14 @@ function viewAllEmployees(){
 
 // View all employees by department
     // Which department would you like to see employees for?
-        // Option
+        // List
 function viewAllEmployeesByDepartment(){
 
 };
 
 // View all employees by manager
     // Which manager's employees would you like to view?
-        // Option
+        // List
 function viewAllEmployeesByManager(){
 
 };
@@ -114,16 +114,32 @@ function viewAllEmployeesByManager(){
     // Employee's first name?
     // Employee's last name?
     // Employee's manager?
-        // Option
+        // List
 function addEmployee(){
-
+    // Get list of all managers in the DB, push them to an array with their names displayed, use this array in inquirer below
+    
+    // inquirer.prompt({
+    //     name: 'firstName',
+    //     type: 'input',
+    //     message: 'What is the new employees first name?'
+    // },
+    // {
+    //     name: 'lastName',
+    //     type: 'input',
+    //     message: 'What is the employees last name?'
+    // },
+    // {
+    //     name: 'managedBy',
+    //     // 
+    // }
+    // )
 };
 
 // Remove employee
     // Employee's first name?
     // Employee's last name?
     // Employee's manager?
-        // Option
+        // List
 function removeEmployee(){
 
 };
@@ -142,7 +158,13 @@ function updateEmployeeManager(){
 
 // View all roles
 function viewAllRoles(){
-
+    connection.query('select * from roles', (err, res) => {
+        if(err){
+            throw new Error(err);
+        }
+        console.table(res);
+        init();
+    })
 };
 
 // Add role
@@ -154,7 +176,7 @@ function addRole(){
 
 // Remove role
     // What is the role's name?
-        // Option
+        // List
 function removeRole(){
 
 };

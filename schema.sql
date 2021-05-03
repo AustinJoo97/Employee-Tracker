@@ -28,8 +28,9 @@ create table employees(
     id int identity(1,1) primary key,
     firstName varchar(30) not null,
     lastName varchar(30) not null,
+    roleID int,
     managerID int,
-    foreign key (roleID) references roles(roleID),
+    foreign key (roleID) references roles(ID),
     foreign key (managerID) references managers(id)
 );
 
