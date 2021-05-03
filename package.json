@@ -16,6 +16,7 @@
     "url": "https://github.com/AustinJoo97/Employee-Tracker/issues"
   },
   "dependencies": {
+    "console.table": "^0.10.0",
     "inquirer": "^8.0.0",
     "mysql": "^2.16.0"
   },
