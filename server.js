@@ -86,6 +86,13 @@ function init(){
 
 // View all employees
 function viewAllEmployees(){
+    connection.query('select * from employees', (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        console.table(res);
+        init();
+    })
 
 };
 
