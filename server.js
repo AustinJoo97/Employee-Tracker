@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const {password} = require('./password.js')
-const allOptions = ['View all employees', 'View all employees by department', 'View all employees by manager', 'Add employee', 'Remove employee', 'Update employee role', 'Update employee manager', 'View all roles', 'Add role', 'Remove role', 'View all departments', 'Add department', 'Remove department'];
+const allOptions = ['View all employees', 'View all employees by department', 'View all employees by manager', 'Add employee', 'Remove employee', 'Update employee role', 'Update employee manager', 'View all roles', 'Add role', 'Remove role', 'View all departments', 'Add department', 'Remove department', 'Exit'];
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -11,9 +11,7 @@ const connection = mysql.createConnection({
     database: 'employeeTrackerDB'
 })
 
-// open a connection(){
-    // run first inquirer function
-// }
+// open a connection
 connection.connect((err) => {
     if(err){
         throw new Error(err)
