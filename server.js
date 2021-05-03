@@ -245,13 +245,3 @@ function addDepartment(){
 function removeDepartment(){
 
 };
-
-
-
-// 'Different' fxns(){
-    // More inquirer questions
-    // .then((answers) => {
-        // run connection.query
-        // Return to first inquirer or run other function()
-    // })
-// }
