@@ -3,7 +3,7 @@ const inquirer = require('inquirer');
 const cTable = require('console.table');
 const { connect } = require('http2');
 require('dotenv').config()
-const allOptions = ['View all employees', 'View all employees by department', 'View all employees by manager', 'Add employee', 'Remove employee', 'Update employee role', 'Update employee manager', 'View all roles', 'Add role', 'Remove role', 'View all departments', 'Add department', 'Remove department', 'Exit'];
+const allChoices = ['View all employees', 'View all employees by department', 'View all employees by manager', 'Add employee', 'Remove employee', 'Update employee role', 'Update employee manager', 'View all roles', 'Add role', 'Remove role', 'View all departments', 'Add department', 'Remove department', 'Exit'];
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -19,12 +19,12 @@ connection.connect((err) => {
         throw new Error(err)
     }
     console.log(`Successfully connected at ${connection.threadId}!`);
-    // init();
+    init();
 })
 
 // first inquirer function(){
     // What would you like to do?
-        // Inquirer list with allOption as options
+        // Inquirer list with allOption as choices
     // Based on require response, run a different function ()
     // If exit is selected, use connection.end()
 // }
@@ -33,7 +33,7 @@ function init(){
         name: 'whatToDo',
         type: 'list',
         message: 'What would you like to do?',
-        options: allOptions
+        choices: allChoices
     })
     .then((response) => {
         switch(response.whatToDo){
@@ -114,7 +114,7 @@ function viewAllEmployeesByDepartment(){
             name: 'selectedDepartment',
             type: 'list',
             message: 'From what department would you like to view the employees of?',
-            options: allDepartmentNames
+            choices: allDepartmentNames
         })
         .then((response) => {
             // Connection query to select all employees where employees.roleID > roles.departmentID > res.id = department.id
