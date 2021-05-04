@@ -1,16 +1,16 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const {password} = require('./password.js');
 const { connect } = require('http2');
+require('dotenv').config()
 const allOptions = ['View all employees', 'View all employees by department', 'View all employees by manager', 'Add employee', 'Remove employee', 'Update employee role', 'Update employee manager', 'View all roles', 'Add role', 'Remove role', 'View all departments', 'Add department', 'Remove department', 'Exit'];
 
 const connection = mysql.createConnection({
     host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: password,
-    database: 'employeeTrackerDB'
+    port: process.env.db_PORT,
+    user: process.env.db_USER,
+    password: process.env.db_PASSWORD,
+    database: process.env.db_DATABASE
 })
 
 // open a connection
@@ -19,7 +19,7 @@ connection.connect((err) => {
         throw new Error(err)
     }
     console.log(`Successfully connected at ${connection.threadId}!`);
-    init();
+    // init();
 })
 
 // first inquirer function(){
@@ -119,11 +119,18 @@ function viewAllEmployeesByDepartment(){
         .then((response) => {
             // Connection query to select all employees where employees.roleID > roles.departmentID > res.id = department.id
 
-            // if(err){
-                // throw new Error(err)
-            // } 
-            // console.table(res);
-            // init();
+             if(err){
+                 throw new Error(err)
+             } 
+             connection.query('select first_name, last_name from employees e join roles r on e.role_id = r.id join departments d on r.department_id = d.id where d.name = ?', [response.selectedDepartment], (err, res) => {
+                //  select first_name, last_name from employees e join roles r on e.role_id = r.id 
+                // join departments d on r.department_id = d.id where d.name = ?
+                if(err){
+                    throw new Error(err)
+                }
+                console.table(res);
+                // init();
+            })
         })
     })
 
@@ -133,7 +140,13 @@ function viewAllEmployeesByDepartment(){
     // Which manager's employees would you like to view?
         // List
 function viewAllEmployeesByManager(){
+    // Get all employees 
+        // If they have no manager_id, push into some array; if an employee has a manager_id, save that id to a separate array
 
+        // select * from employees e where e.manager_id is null
+            // should only return list of managers
+        
+        // select first_name, last_name from employees e where e.manager_id = res.id;
 };
 
 // Add employee
@@ -167,7 +180,9 @@ function addEmployee(){
     // Employee's manager?
         // List
 function removeEmployee(){
-
+    // Select which department the employee works
+        // Select the employee roles
+            // Select the employee
 };
 
 // Update employee role
