@@ -140,29 +140,98 @@ function viewAllEmployeesByManager(){
         // select first_name, last_name from employees e where e.manager_id = res.id;
 };
 
-// Add employee
-    // Employee's first name?
-    // Employee's last name?
-    // Employee's manager?
-        // List
+// Working Successfully
 function addEmployee(){
     // Get list of all managers in the DB, push them to an array with their names displayed, use this array in inquirer below
+    let allManagerNames = [];
+    let allRoles;
+    let allRoleTitles = [];
+    let roleID;
+    let managerID;
+    connection.query('select * from roles', (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        res.forEach((role) => {
+            allRoleTitles.push(role.title)
+        })
+        allRoles = res;
+    })
+    connection.query('select * from employees where manager_id is null or manager_id = ""', async (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        res.forEach((manager) => {
+            allManagerNames.push(`${manager.first_name} ${manager.last_name}`);
+        })
+        allManagerNames.push('This person is a manager')
 
-    // inquirer.prompt({
-    //     name: 'firstName',
-    //     type: 'input',
-    //     message: 'What is the new employees first name?'
-    // },
-    // {
-    //     name: 'lastName',
-    //     type: 'input',
-    //     message: 'What is the employees last name?'
-    // },
-    // {
-    //     name: 'managedBy',
-    //     // 
-    // }
-    // )
+        let response = await inquirer.prompt([
+            {
+                name: 'firstName',
+                type: 'input',
+                message: 'What is the new employees first name?'
+            },
+            {
+                name: 'lastName',
+                type: 'input',
+                message: 'What is the employees last name?'
+            },
+            {
+                name: 'managedBy',
+                type: 'list',
+                message: 'Is this person managed by anyone in the following?',
+                choices: allManagerNames
+            },
+            {
+                name: 'employeeRole',
+                type: 'list',
+                message: 'What is this employees role?',
+                choices: allRoleTitles
+            }
+        ])
+
+        allRoles.forEach((role) => {
+            if(role.title === response.employeeRole){
+                roleID = role.id
+            }
+        })
+
+        response.firstName = response.firstName.charAt(0).toUpperCase() + response.firstName.slice(1);
+        response.lastName = response.lastName.charAt(0).toUpperCase() + response.lastName.slice(1);
+
+        if(response.managedBy === 'This person is a manager'){
+            connection.query('insert into employees set ?', {
+                first_name: response.firstName,
+                last_name: response.lastName,
+                role_id: roleID
+            }, (err, res) => {
+                if(err){
+                    throw new Error(err)
+                }
+                console.log(`Successfully added ${response.firstName} ${response.lastName} to the roster!`)
+            })
+        } else {
+            res.forEach((manager) => {
+                if(`${manager.first_name} ${manager.last_name}` === response.managedBy){
+                    managerID = manager.id;
+                }
+            })
+            connection.query('insert into employees set ?', {
+                first_name: response.firstName,
+                last_name: response.lastName,
+                role_id: roleID,
+                manager_id: managerID
+            }, (err, res) => {
+                if(err){
+                    throw new Error(err)
+                }
+                console.log(`Successfully added ${response.firstName} ${response.lastName} to the roster!`)
+            })
+        }
+        init();
+    })
+
 };
 
 // Remove employee
@@ -199,7 +268,7 @@ function viewAllRoles(){
     });
 };
 
-// Workin Successfully
+// Working Successfully
 addRole = async () => {
     let allDepartments;
     let allDepartmentNames = [];
@@ -257,11 +326,41 @@ addRole = async () => {
     })
 };
 
-// Remove role
-    // What is the role's name?
-        // List
+// Working Successfully
 function removeRole(){
+    let allRoleTitles = [];
+    connection.query('select * from roles', async (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        res.forEach((role) => {
+            allRoleTitles.push(role.title);
+        })
 
+        let response = await inquirer.prompt([
+            {
+                name: 'deleteRole',
+                type: 'list',
+                message: 'Which role would you like to remove?',
+                choices: allRoleTitles
+            }
+        ])
+
+        res.forEach((role) => {
+            if(role.title === response.deleteRole){
+                connection.query('delete from roles where ?', {
+                    id: role.id
+                }, 
+                (err,res) => {
+                    if(err){
+                        throw new Error(err)
+                    }
+                    console.log(`Successfully removed ${response.deletedRole}.`)
+                })
+            }
+        })
+        init();
+    })
 };
 //--------------------------------------------------------------------------------
 // The following functions pertain to departments and the viewing/creation/deletion of them
@@ -329,5 +428,4 @@ function removeDepartment(){
         })
         init();
     })
-
 };
