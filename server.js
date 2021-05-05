@@ -99,10 +99,10 @@ function viewAllEmployees(){
 // View all employees by department
     // Which department would you like to see employees for?
         // List
-viewAllEmployeesByDepartment= async () => {
+function viewAllEmployeesByDepartment(){
     // Get list of all departments and have user select from list which department they want to see all employees
     let allDepartmentNames = [];
-    connection.query('select * from departments;', (err, res) => {
+    connection.query('select * from departments;', async (err, res) => {
         res.forEach((department) => {
             allDepartmentNames.push(department.name);
         });
@@ -114,7 +114,7 @@ viewAllEmployeesByDepartment= async () => {
             choices: allDepartmentNames
         })
             // Connection query to select all employees where employees.roleID > roles.departmentID > res.id = department.id
-            
+
         connection.query('select first_name, last_name from employees e join roles r on e.role_id = r.id join departments d on r.department_id = d.id where d.name = ?', [response.selectedDepartment], (err, res) => {
             //  select first_name, last_name from employees e join roles r on e.role_id = r.id 
             // join departments d on r.department_id = d.id where d.name = ?
@@ -188,22 +188,73 @@ function updateEmployeeManager(){
 //--------------------------------------------------------------------------------
 // The following functions pertain to viewing/creating/deleting information specifically about existing and new roles
 
-// View all roles
+// Working Successfully
 function viewAllRoles(){
     connection.query('select * from roles;', (err, res) => {
         if(err){
             throw new Error(err);
         }
-        console.table(response);
+        console.table(res);
         init();
     });
 };
 
-// Add role
-    // What is the role's name?
-    // What is the yearly salary for his role?
-function addRole(){
+// Workin Successfully
+addRole = async () => {
+    let allDepartments;
+    let allDepartmentNames = [];
+    let departmentID;
+    connection.query('select * from departments', (err, res)=> {
+        res.forEach((department) => {
+            allDepartmentNames.push(department.name);
+        })
+        allDepartments = res;
+    })
 
+    let response = await inquirer.prompt([
+        {
+            name: 'roleTitle',
+            type: 'input',
+            message: 'What is the new role\'s title?'
+        },
+        {
+            name: 'roleSalary',
+            type: 'input',
+            message: 'What is the yearly salary for this role?',
+            validate(value){
+                if(isNaN(value) === false){
+                    return true;
+                }
+                return false
+            }
+        },
+        {
+            name: 'rolesDepartment',
+            type: 'list',
+            message: 'To which department does this role belong to?',
+            choices: allDepartmentNames
+        }
+    ])
+
+    allDepartments.forEach((department) => {
+        if(department.name === response.rolesDepartment){
+            departmentID = department.id;
+        }
+    })
+    response.roleTitle = response.roleTitle.charAt(0).toUpperCase() + response.roleTitle.slice(1);
+
+    connection.query('insert into roles set ?', {
+        title: response.roleTitle,
+        salary: response.roleSalary,
+        department_id: departmentID
+    }, 
+    (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        console.table(res)
+        init();
+    })
 };
 
 // Remove role
@@ -215,7 +266,7 @@ function removeRole(){
 //--------------------------------------------------------------------------------
 // The following functions pertain to departments and the viewing/creation/deletion of them
 
-// View all departments
+// Works Successfully
 function viewAllDepartments(){
     connection.query('select * from departments;', (err, res) => {
         if(err){
@@ -226,8 +277,7 @@ function viewAllDepartments(){
     })
 };
 
-// Add department
-    // What is the new department's name?
+// Works Successsfully
 addDepartment = async () => {
     let response = await inquirer.prompt({
         name: 'addDepartment',
