@@ -294,8 +294,40 @@ addDepartment = async () => {
     })
 };
 
-// Remove department
-    // What is the department's name?
+// Working Successfully
+    // Would return an error if attempting to delete a department if its ID was already in use as a role's deparment_id
 function removeDepartment(){
+    let allDepartments = [];
+    connection.query('select * from departments', async (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        res.forEach((department) => {
+            allDepartments.push(department);
+        })
+
+        let response = await inquirer.prompt([
+            {
+                name: 'deleteDepartment',
+                type: 'list',
+                message: 'Which department would you like to remove?',
+                choices: allDepartments
+            }
+        ])
+        allDepartments.forEach((department) => {
+            if(department.name === response.deleteDepartment){
+                connection.query('delete from departments where ?', {
+                    id: department.id
+                }, 
+                (err,res) => {
+                    if(err){
+                        throw new Error(err)
+                    }
+                    console.log(`Successfully removed ${response.deletedDepartment}.`)
+                })
+            }
+        })
+        init();
+    })
 
 };
