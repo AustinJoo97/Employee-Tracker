@@ -28,58 +28,57 @@ connection.connect((err) => {
     // Based on require response, run a different function ()
     // If exit is selected, use connection.end()
 // }
-function init(){
-    inquirer.prompt({
+init = async () => {
+    let response = await inquirer.prompt({
         name: 'whatToDo',
         type: 'list',
         message: 'What would you like to do?',
         choices: allChoices
     })
-    .then((response) => {
-        switch(response.whatToDo){
-            case 'View all employees':
-                viewAllEmployees();
-                break;
-            case 'View all employees by department':
-                viewAllEmployeesByDepartment();
-                break;
-            case 'View all employees by manager':
-                viewAllEmployeesByManager();
-                break;
-            case 'Add employee':
-                addEmployee();
-                break;
-            case 'Remove employee':
-                removeEmployee();
-                break;
-            case 'Update employee role':
-                updateEmployeeRole();
-                break;
-            case 'Update employee manager':
-                updateEmployeeManager();
-                break;
-            case 'View all roles':
-                viewAllRoles();
-                break;
-            case 'Add role':
-                addRole();
-                break;
-            case 'Remove role':
-                removeRole();
-                break;
-            case 'View all departments':
-                viewAllDepartments();
-                break;
-            case 'Add department':
-                addDepartment();
-                break;
-            case 'Remove department':
-                removeDepartment()
-                break;
-            default:
-                connection.end();
-        }
-    })
+    
+    switch(response.whatToDo){
+        case 'View all employees':
+            viewAllEmployees();
+            break;
+        case 'View all employees by department':
+            viewAllEmployeesByDepartment();
+            break;
+        case 'View all employees by manager':
+            viewAllEmployeesByManager();
+            break;
+        case 'Add employee':
+            addEmployee();
+            break;
+        case 'Remove employee':
+            removeEmployee();
+            break;
+        case 'Update employee role':
+            updateEmployeeRole();
+            break;
+        case 'Update employee manager':
+            updateEmployeeManager();
+            break;
+        case 'View all roles':
+            viewAllRoles();
+            break;
+        case 'Add role':
+            addRole();
+            break;
+        case 'Remove role':
+            removeRole();
+            break;
+        case 'View all departments':
+            viewAllDepartments();
+            break;
+        case 'Add department':
+            addDepartment();
+            break;
+        case 'Remove department':
+            removeDepartment()
+            break;
+        default:
+            connection.end();
+    }
 }
 
 //--------------------------------------------------------------------------------
@@ -100,40 +99,32 @@ function viewAllEmployees(){
 // View all employees by department
     // Which department would you like to see employees for?
         // List
-function viewAllEmployeesByDepartment(){
+viewAllEmployeesByDepartment= async () => {
     // Get list of all departments and have user select from list which department they want to see all employees
     let allDepartmentNames = [];
     connection.query('select * from departments;', (err, res) => {
-        if(err){
-            throw new Error(err);
-        }
         res.forEach((department) => {
             allDepartmentNames.push(department.name);
         });
-        inquirer.prompt({
+
+        let response = await inquirer.prompt({
             name: 'selectedDepartment',
             type: 'list',
             message: 'From what department would you like to view the employees of?',
             choices: allDepartmentNames
         })
-        .then((response) => {
             // Connection query to select all employees where employees.roleID > roles.departmentID > res.id = department.id
-
-             if(err){
-                 throw new Error(err)
-             } 
-             connection.query('select first_name, last_name from employees e join roles r on e.role_id = r.id join departments d on r.department_id = d.id where d.name = ?', [response.selectedDepartment], (err, res) => {
-                //  select first_name, last_name from employees e join roles r on e.role_id = r.id 
-                // join departments d on r.department_id = d.id where d.name = ?
-                if(err){
-                    throw new Error(err)
-                }
-                console.table(res);
-                // init();
-            })
+            
+        connection.query('select first_name, last_name from employees e join roles r on e.role_id = r.id join departments d on r.department_id = d.id where d.name = ?', [response.selectedDepartment], (err, res) => {
+            //  select first_name, last_name from employees e join roles r on e.role_id = r.id 
+            // join departments d on r.department_id = d.id where d.name = ?
+            if(err){
+                throw new Error(err)
+            }
+            console.table(res);
+            // init();
         })
-    })
-
+    });
 };
 
 // View all employees by manager
@@ -203,9 +194,9 @@ function viewAllRoles(){
         if(err){
             throw new Error(err);
         }
-        console.table(res);
+        console.table(response);
         init();
-    })
+    });
 };
 
 // Add role
@@ -237,21 +228,19 @@ function viewAllDepartments(){
 
 // Add department
     // What is the new department's name?
-function addDepartment(){
-    inquirer.prompt({
+addDepartment = async () => {
+    let response = await inquirer.prompt({
         name: 'addDepartment',
         type: 'input',
         message: 'What department are you adding?'
     })
-    .then((response) => {
-        response.addDepartment = response.addDepartment.charAt(0).toUpperCase() + response.addDepartment.slice(1);
-        connection.query('insert into departments set ?', {name: response.addDepartment}, (err, res) => {
-            if(err){
-                throw new Error(err)
-            }
-            console.log(`${response.addDepartment} successfully added to departments!`)
-            init();
-        })
+    response.addDepartment = response.addDepartment.charAt(0).toUpperCase() + response.addDepartment.slice(1);
+    connection.query('insert into departments set ?', {name: response.addDepartment}, (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        console.log(`${response.addDepartment} successfully added to departments!`)
+        init();
     })
 };
 
