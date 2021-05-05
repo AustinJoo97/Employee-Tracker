@@ -84,7 +84,7 @@ init = async () => {
 //--------------------------------------------------------------------------------
 // The following functions pertain specifically to employees and interaction with employee-relevant data
 
-// View all employees
+// Working Successfully
 function viewAllEmployees(){
     connection.query('select * from employees;', (err, res) => {
         if(err){
@@ -93,7 +93,6 @@ function viewAllEmployees(){
         console.table(res);
         init();
     })
-
 };
 
 // View all employees by department
