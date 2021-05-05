@@ -95,11 +95,8 @@ function viewAllEmployees(){
     })
 };
 
-// View all employees by department
-    // Which department would you like to see employees for?
-        // List
+// Working Successfully
 function viewAllEmployeesByDepartment(){
-    // Get list of all departments and have user select from list which department they want to see all employees
     let allDepartmentNames = [];
     connection.query('select * from departments;', async (err, res) => {
         res.forEach((department) => {
@@ -112,16 +109,13 @@ function viewAllEmployeesByDepartment(){
             message: 'From what department would you like to view the employees of?',
             choices: allDepartmentNames
         })
-            // Connection query to select all employees where employees.roleID > roles.departmentID > res.id = department.id
 
         connection.query('select first_name, last_name from employees e join roles r on e.role_id = r.id join departments d on r.department_id = d.id where d.name = ?', [response.selectedDepartment], (err, res) => {
-            //  select first_name, last_name from employees e join roles r on e.role_id = r.id 
-            // join departments d on r.department_id = d.id where d.name = ?
             if(err){
                 throw new Error(err)
             }
             console.table(res);
-            // init();
+            init();
         })
     });
 };
