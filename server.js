@@ -120,17 +120,43 @@ function viewAllEmployeesByDepartment(){
     });
 };
 
-// View all employees by manager
-    // Which manager's employees would you like to view?
-        // List
+// Working Successfully
 function viewAllEmployeesByManager(){
     // Get all employees 
         // If they have no manager_id, push into some array; if an employee has a manager_id, save that id to a separate array
+    let allManagerNames = [];
+    let managerID;
+    connection.query('select * from employees where manager_id is null or manager_id = ""', async (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        res.forEach((manager) => {
+            allManagerNames.push(`${manager.first_name} ${manager.last_name}`);
+        })
 
-        // select * from employees e where e.manager_id is null
-            // should only return list of managers
-        
-        // select first_name, last_name from employees e where e.manager_id = res.id;
+        let response = await inquirer.prompt([
+            {
+                name: 'managedBy',
+                type: 'list',
+                message: 'Which manager would you like to see the employees of?',
+                choices: allManagerNames
+            }
+        ])
+
+        res.forEach((manager) => {
+            if(`${manager.first_name} ${manager.last_name}` === response.managedBy){
+                managerID = manager.id;
+            }
+        })
+
+        connection.query('select * from employees where ?', {manager_id: managerID}, (err, res) => {
+            if(err){
+                throw new Error(err)
+            } 
+            console.table(res);
+            init();
+        })
+    });
 };
 
 // Working Successfully
@@ -234,18 +260,177 @@ function addEmployee(){
         // List
 function removeEmployee(){
     // Select which department the employee works
-        // Select the employee roles
-            // Select the employee
+    let allDepartments;
+    let allDepartmentNames = [];
+    connection.query('select * from departments;', async (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        res.forEach((department) => {allDepartmentNames.push(department.name)})
+
+        let response = await inquirer.prompt([
+            {
+                name: 'selectedDepartment',
+                type: 'list',
+                message: 'What department does the employee work in?',
+                choices: allDepartmentNames
+            }
+        ])
+
+        connection.query('select first_name, last_name from employees e join roles r on e.role_id = r.id join departments d on r.department_id = d.id where d.name = ?', [response.selectedDepartment], async (err, res) => {
+            if(err){
+                throw new Error(err)
+            }
+            let allEmployees = [];
+            res.forEach((employee) => {
+                allEmployees.push(`${employee.first_name} ${employee.last_name}`)
+            });
+            console.log(allEmployees);
+
+            let deleteEmployee = await inquirer.prompt([
+                {
+                    name: 'employeeToDelete',
+                    type: 'list',
+                    message: 'Please select the employee you wish to remove.',
+                    choices: allEmployees
+                }
+            ])
+
+            let selectedEmployee = deleteEmployee.employeeToDelete.split(" ");
+            connection.query('delete from employees where ?', {
+                first_name: selectedEmployee[0],
+                last_name: selectedEmployee[1]
+            }, (err, res) => {
+                if(err){
+                    throw new Error(err)
+                }
+                console.log('Successfully removed employee.');
+                init();
+            })
+        })
+    })
 };
 
 // Update employee role
 function updateEmployeeRole(){
+    let allRoles; 
+    let allRoleTitles =[];
+    let roleID;
+    let allEmployeeNames = [];
+    let allEmployees;
 
+    connection.query('select * from roles', (err, res) => {
+        if(err){
+            throw new Error(err);
+        }
+        res.forEach((role) => {allRoleTitles.push(role.title)})
+        allRoles = res;
+    })
+
+    connection.query('select * from employees', async (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        res.forEach((employee) => {allEmployeeNames.push(`${employee.first_name} ${employee.last_name}`)})
+        allEmployees = res;
+
+        let response = await inquirer.prompt([
+            {
+                name: 'employeeToChange',
+                type: 'list',
+                message: 'Please select the employee whose role will be changed.',
+                choices: allEmployeeNames
+            },
+            {
+                name: 'newRole',
+                type: 'list',
+                message: 'What will be the newly assigned role?',
+                choices: allRoleTitles
+            }
+        ])
+
+        allRoles.forEach((role) => {
+            if(role.title === response.newRole){
+                roleID = role.id;
+            }
+        })
+
+        let employeeFullName = response.employeeToChange.split(" ");
+        connection.query('update employees set ? where ?', [
+            {
+                role_id: roleID
+            },
+            {
+                first_name: employeeFullName[0],
+                last_name: employeeFullName[1]
+            }
+        ],(err, res) => {
+            if(err){
+                throw new Error(err)
+            }
+            console.log(`Successfully updated role for ${response.employeetoChange}, ${response.newRole}.`);
+            init();
+        })
+    })
 };
 
 // Update employee manager
 function updateEmployeeManager(){
+    let allManagerNames = [];
+    let managerID;
+    let allEmployeeNames = [];
+    let allEmployees;
+    connection.query('select * from employees where manager_id is not null', (err, res) => {
+        allEmployees = res;
+        res.forEach((employee) => {allEmployeeNames.push(`${employee.first_name} ${employee.last_name}`)});
+    })
 
+    connection.query('select * from employees where manager_id is null or manager_id = ""', async (err, res) => {
+        if(err){
+            throw new Error(err)
+        }
+        res.forEach((manager) => {
+            allManagerNames.push(`${manager.first_name} ${manager.last_name}`);
+        })
+
+        let response = await inquirer.prompt([
+            {
+                name: 'changeManagerFor',
+                type: 'list',
+                message: 'Which employee will be under new management?',
+                choices: allEmployeeNames
+            },
+            {
+                name: 'newManager',
+                type: 'list',
+                message: 'Who will be their new manager?',
+                choices: allManagerNames
+            }
+        ])
+
+        let employeeName = response.changeManagerFor.split(" ");
+        res.forEach((manager) => {
+            if(`${manager.first_name} ${manager.last_name}` === response.newManager){
+                managerID = manager.id;
+            }
+        })
+
+        connection.query('update employees set ? where ?', [
+            {
+                manager_id: managerID
+            }, 
+            {
+                first_name: employeeName[0],
+                last_name: employeeName[1]
+            }
+        ], (err, res) => {
+            if(err){
+                throw new Error(err)
+            } 
+            console.log('Successfully changed manager!');
+            init();
+        })
+    });
 };
 //--------------------------------------------------------------------------------
 // The following functions pertain to viewing/creating/deleting information specifically about existing and new roles
@@ -262,60 +447,61 @@ function viewAllRoles(){
 };
 
 // Working Successfully
-addRole = async () => {
-    let allDepartments;
+function addRole(){
     let allDepartmentNames = [];
     let departmentID;
-    connection.query('select * from departments', (err, res)=> {
-        res.forEach((department) => {
-            allDepartmentNames.push(department.name);
-        })
-        allDepartments = res;
-    })
-
-    let response = await inquirer.prompt([
-        {
-            name: 'roleTitle',
-            type: 'input',
-            message: 'What is the new role\'s title?'
-        },
-        {
-            name: 'roleSalary',
-            type: 'input',
-            message: 'What is the yearly salary for this role?',
-            validate(value){
-                if(isNaN(value) === false){
-                    return true;
-                }
-                return false
-            }
-        },
-        {
-            name: 'rolesDepartment',
-            type: 'list',
-            message: 'To which department does this role belong to?',
-            choices: allDepartmentNames
-        }
-    ])
-
-    allDepartments.forEach((department) => {
-        if(department.name === response.rolesDepartment){
-            departmentID = department.id;
-        }
-    })
-    response.roleTitle = response.roleTitle.charAt(0).toUpperCase() + response.roleTitle.slice(1);
-
-    connection.query('insert into roles set ?', {
-        title: response.roleTitle,
-        salary: response.roleSalary,
-        department_id: departmentID
-    }, 
-    (err, res) => {
+    connection.query('select * from departments', async (err, res)=> {
         if(err){
             throw new Error(err)
         }
-        console.table(res)
-        init();
+        res.forEach((department) => {
+            allDepartmentNames.push(department.name);
+        })
+
+        let response = await inquirer.prompt([
+            {
+                name: 'roleTitle',
+                type: 'input',
+                message: 'What is the new role\'s title?'
+            },
+            {
+                name: 'roleSalary',
+                type: 'input',
+                message: 'What is the yearly salary for this role?',
+                validate(value){
+                    if(isNaN(value) === false){
+                        return true;
+                    }
+                    return false
+                }
+            },
+            {
+                name: 'rolesDepartment',
+                type: 'list',
+                message: 'To which department does this role belong to?',
+                choices: allDepartmentNames
+            }
+        ])
+    
+        res.forEach((department) => {
+            if(department.name === response.rolesDepartment){
+                departmentID = department.id;
+            }
+        })
+        response.roleTitle = response.roleTitle.charAt(0).toUpperCase() + response.roleTitle.slice(1);
+    
+        connection.query('insert into roles set ?', {
+            title: response.roleTitle,
+            salary: response.roleSalary,
+            department_id: departmentID
+        }, 
+        (err, res) => {
+            if(err){
+                throw new Error(err)
+            }
+            console.table(res)
+            init();
+        })
     })
 };
 

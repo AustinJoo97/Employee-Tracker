@@ -23,8 +23,6 @@ create table roles(
     primary key (id),
     foreign key (department_id) references departments(id)
 );
--- id, title, salary, and department
--- use "WHERE departmentID = departments.id"  ???
 
 create table employees(
     id int auto_increment,
@@ -37,6 +35,4 @@ create table employees(
     foreign key (manager_id) references employees(id)
 );
 
--- if an employee has a manager, assign the manager's id to employee manager
--- if they do not have a manager, they will have a manager_id value of null
 
