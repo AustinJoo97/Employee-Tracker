@@ -253,11 +253,7 @@ function addEmployee(){
 
 };
 
-// Remove employee
-    // Employee's first name?
-    // Employee's last name?
-    // Employee's manager?
-        // List
+// Working Successfully
 function removeEmployee(){
     // Select which department the employee works
     let allDepartments;
@@ -297,10 +293,11 @@ function removeEmployee(){
             ])
 
             let selectedEmployee = deleteEmployee.employeeToDelete.split(" ");
-            connection.query('delete from employees where ?', {
-                first_name: selectedEmployee[0],
-                last_name: selectedEmployee[1]
-            }, (err, res) => {
+            console.log(selectedEmployee);
+            connection.query('delete from employees where first_name = ? and last_name = ?', [
+                selectedEmployee[0],
+                selectedEmployee[1]
+            ], (err, res) => {
                 if(err){
                     throw new Error(err)
                 }
@@ -311,7 +308,7 @@ function removeEmployee(){
     })
 };
 
-// Update employee role
+// Working Successfully
 function updateEmployeeRole(){
     let allRoles; 
     let allRoleTitles =[];
@@ -356,14 +353,16 @@ function updateEmployeeRole(){
         })
 
         let employeeFullName = response.employeeToChange.split(" ");
-        connection.query('update employees set ? where ?', [
+        connection.query('update employees set ? where first_name = ? and last_name = ?', [
             {
                 role_id: roleID
             },
-            {
-                first_name: employeeFullName[0],
-                last_name: employeeFullName[1]
-            }
+            [
+                employeeFullName[0]
+            ],
+            [
+                employeeFullName[1]
+            ]
         ],(err, res) => {
             if(err){
                 throw new Error(err)
@@ -374,7 +373,7 @@ function updateEmployeeRole(){
     })
 };
 
-// Update employee manager
+// Working Successfully
 function updateEmployeeManager(){
     let allManagerNames = [];
     let managerID;
@@ -415,14 +414,16 @@ function updateEmployeeManager(){
             }
         })
 
-        connection.query('update employees set ? where ?', [
+        connection.query('update employees set ? where first_name = ? and last_name = ?', [
             {
                 manager_id: managerID
             }, 
-            {
-                first_name: employeeName[0],
-                last_name: employeeName[1]
-            }
+            [
+                employeeName[0]
+            ],
+            [
+                employeeName[1]
+            ]
         ], (err, res) => {
             if(err){
                 throw new Error(err)
