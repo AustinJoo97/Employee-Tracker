@@ -5,6 +5,7 @@ const { connect } = require('http2');
 require('dotenv').config()
 const allChoices = ['View all employees', 'View all employees by department', 'View all employees by manager', 'Add employee', 'Remove employee', 'Update employee role', 'Update employee manager', 'View all roles', 'Add role', 'Remove role', 'View all departments', 'Add department', 'Remove department', 'Exit'];
 
+// Parameters passed in to create a connection to a database
 const connection = mysql.createConnection({
     host: 'localhost',
     port: process.env.db_PORT,
@@ -13,7 +14,7 @@ const connection = mysql.createConnection({
     database: process.env.db_DATABASE
 })
 
-// open a connection
+// Open a connection
 connection.connect((err) => {
     if(err){
         throw new Error(err)
@@ -22,12 +23,7 @@ connection.connect((err) => {
     init();
 })
 
-// first inquirer function(){
-    // What would you like to do?
-        // Inquirer list with allOption as choices
-    // Based on require response, run a different function ()
-    // If exit is selected, use connection.end()
-// }
+// First function which will run to generate a list of all possible actions with this application
 init = async () => {
     let response = await inquirer.prompt({
         name: 'whatToDo',
